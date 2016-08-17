@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
+import Control.Monad
 import Data.Ini
 import Data.List (elem, isSuffixOf)
 import Data.Maybe (fromMaybe)
@@ -124,15 +125,13 @@ getNecessaryMigrations cfg = do
   mid <- fromMaybe 0 <$> getLastMigration cfg
   migrations <- filter (\x -> ".sql" `isSuffixOf` x) <$> listDirectory "sql"
   let migrationList = fmap (\x -> (parseMigrationId x, "sql/" ++ x)) migrations
-      migrationFiltered = filter (getNecessaryMigrations mid) migrationList
-  return migrationFiltered
+      migrationFiltered = filterM (getNecessaryMigrations' mid) migrationList
+  migrationFiltered
   where
-    getNecessaryMigrations _ (Nothing, fn) =
-      error $ "Invalid migration filename: " ++ fn
-    getNecessaryMigrations current (Just mid, fn) =
-      if mid > current
-      then True
-      else False
+    getNecessaryMigrations' _ (Nothing, fn) = do
+      putStrLn $ "Invalid migration filename: " ++ fn
+      exitFailure >> return False
+    getNecessaryMigrations' current (Just mid, fn) = return (mid > current)
 
 showMigrationStatus :: Config -> IO ()
 showMigrationStatus cfg = do
