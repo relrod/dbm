@@ -120,13 +120,14 @@ showLastMigration cfg = do
     Just mid -> putStrLn $ "Last migration id: " ++ show mid
     Nothing -> putStrLn "No migrations have been performed. :-("
 
-getNecessaryMigrations :: Config -> IO [(Maybe Integer, FilePath)]
+getNecessaryMigrations :: Config -> IO [(Integer, FilePath)]
 getNecessaryMigrations cfg = do
   mid <- fromMaybe 0 <$> getLastMigration cfg
   migrations <- filter (\x -> ".sql" `isSuffixOf` x) <$> listDirectory "sql"
   let migrationList = fmap (\x -> (parseMigrationId x, "sql/" ++ x)) migrations
-      migrationFiltered = filterM (getNecessaryMigrations' mid) migrationList
-  migrationFiltered
+  migrationFiltered <- filterM (getNecessaryMigrations' mid) migrationList
+  let migrationFilteredOnlyJust = [(x, y) | (Just x, y) <- migrationFiltered]
+  return migrationFilteredOnlyJust
   where
     getNecessaryMigrations' _ (Nothing, fn) = do
       putStrLn $ "Invalid migration filename: " ++ fn
@@ -148,7 +149,7 @@ performMigrations cfg = do
   migrations <- getNecessaryMigrations cfg
   -- This pattern match is "safe" because we `error` in getNecessaryMigrations
   -- if it were never a `Nothing`.
-  mapM_ (\(Just mid, x) -> doMigration' x mid) migrations
+  mapM_ (\(mid, x) -> doMigration' x mid) migrations
   where
     doMigration' sql mid = do
       putStr $ "Migrating " ++ sql ++ "... "
