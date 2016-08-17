@@ -126,8 +126,7 @@ getNecessaryMigrations cfg = do
   migrations <- filter (\x -> ".sql" `isSuffixOf` x) <$> listDirectory "sql"
   let migrationList = fmap (\x -> (parseMigrationId x, "sql/" ++ x)) migrations
   migrationFiltered <- filterM (getNecessaryMigrations' mid) migrationList
-  let migrationFilteredOnlyJust = [(x, y) | (Just x, y) <- migrationFiltered]
-  return migrationFilteredOnlyJust
+  return [(x, y) | (Just x, y) <- migrationFiltered]
   where
     getNecessaryMigrations' _ (Nothing, fn) = do
       putStrLn $ "Invalid migration filename: " ++ fn
