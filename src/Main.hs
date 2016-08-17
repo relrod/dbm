@@ -5,6 +5,7 @@ import Control.Monad
 import Data.Ini
 import Data.List (elem, isSuffixOf)
 import Data.Maybe (fromMaybe)
+import Data.Monoid ((<>))
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import System.Directory
