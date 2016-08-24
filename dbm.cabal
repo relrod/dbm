@@ -1,5 +1,5 @@
 name:                dbm
-version:             0.1.1.0
+version:             0.2
 synopsis:            A *simple* database migration tool.
 homepage:            https://github.com/relrod/dbm
 license:             BSD3
@@ -17,6 +17,7 @@ executable dbm
                      , SQLite
   -- other-extensions:
   build-depends:       base >= 4 && < 5
+                     , direct-sqlite >= 2.3 && < 2.4
                      , directory
                      , ini
                      , optparse-applicative >= 0.12 && < 0.14

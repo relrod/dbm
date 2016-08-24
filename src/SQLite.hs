@@ -5,6 +5,7 @@ import Data.Maybe (listToMaybe)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import Database.SQLite.Simple
+import Database.SQLite3 (exec)
 
 import Utility
 
@@ -35,10 +36,12 @@ logMigration conn mid =
 
 performMigration :: FilePath -> FilePath -> Integer -> IO ()
 performMigration dbPath sql mid = do
-  conn <- open dbPath
+  conn@(Connection hdl) <- open dbPath
   withTransaction conn $ do
     migrationQuery <- T.readFile sql
-    execute_ conn (Query migrationQuery)
+    -- NOTE! We have to drop to direct-sqlite here and used 'exec' from it
+    -- because of https://github.com/nurpax/sqlite-simple/issues/44
+    exec hdl migrationQuery
     logMigration conn mid
 
 getLastMigration :: FilePath -> IO (Maybe Integer)
