@@ -1,5 +1,5 @@
 name:                dbm
-version:             0.2.1
+version:             0.2.2
 synopsis:            A *simple* database migration tool.
 homepage:            https://github.com/relrod/dbm
 license:             BSD3
