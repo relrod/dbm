@@ -1,7 +1,7 @@
 -- | Global types and functions.
 module Utility where
 
-import Data.Time.Clock (UTCTime)
+import Data.Time (UTCTime)
 import Text.Read
 
 data Migration =
