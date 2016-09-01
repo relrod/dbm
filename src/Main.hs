@@ -3,7 +3,7 @@ module Main where
 
 import Control.Monad
 import Data.Ini
-import Data.List (elem, isSuffixOf)
+import Data.List (elem, isSuffixOf, sort)
 import Data.Maybe (fromMaybe)
 import Data.Monoid ((<>))
 import qualified Data.Text as T
@@ -126,7 +126,7 @@ getNecessaryMigrations cfg = do
   mid <- fromMaybe 0 <$> getLastMigration cfg
   migrations <- filter (\x -> ".sql" `isSuffixOf` x) <$> listDirectory "sql"
   let migrationList = fmap (\x -> (parseMigrationId x, "sql/" ++ x)) migrations
-  migrationFiltered <- filterM (getNecessaryMigrations' mid) migrationList
+  migrationFiltered <- filterM (getNecessaryMigrations' mid) (sort migrationList)
   return [(x, y) | (Just x, y) <- migrationFiltered]
   where
     getNecessaryMigrations' _ (Nothing, fn) = do
